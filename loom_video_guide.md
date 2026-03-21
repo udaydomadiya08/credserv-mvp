@@ -28,7 +28,7 @@ This script is designed for a **3-5 minute screen recording**. Follow the "What 
 1. Open `phase2/state_machine.py`.
 2. Highlight the `BorrowerState` class (line 46) and the `route` function (line 209). 
 3. Run these terminal commands (Stable Mock Mode): 
-   - `python phase2/state_machine.py --scenario payment --mock`
+   - `python phase2/state_machine.py --scenario pays_on_time --mock`
    - `python phase2/state_machine.py --scenario disputes --mock`
 
 **What to say:**
