@@ -1,0 +1,17 @@
+{
+    "name": "credserv-walkthrough",
+    "version": "1.0.0",
+    "description": "Remotion walkthrough for CredServ MVP",
+    "scripts": {
+        "start": "remotion preview src/index.tsx",
+        "build": "remotion render src/index.tsx MyVideo out/video.mp4"
+    },
+    "dependencies": {
+        "remotion": "4.0.0",
+        "@remotion/cli": "4.0.0",
+        "@remotion/transitions": "4.0.0",
+        "react": "18.2.0",
+        "react-dom": "18.2.0",
+        "lucide-react": "0.263.1"
+    }
+}
