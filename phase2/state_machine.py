@@ -84,12 +84,24 @@ def append_audit(state: BorrowerState, action: str, details: dict = {}) -> list[
 # ---------------------------------------------------------------------------
 # AI message generator (bounded — only generates text, never drives state)
 # ---------------------------------------------------------------------------
-def generate_message(template_type: str, borrower: BorrowerState) -> str:
+def generate_message(template_type: str, borrower: BorrowerState, mock: bool = False) -> str:
     """
     Uses Gemini to generate personalized communication text.
     The LLM only generates the message body — it has zero control over
     state transitions or escalation decisions.
     """
+    if mock:
+        # High-fidelity mock responses for Loom recording
+        mocks = {
+            "d15_gentle": f"Hi {borrower['borrower_name']}, this is a friendly reminder that your payment of ₹{borrower['loan_amount']:,.0f} is due in 15 days.",
+            "d7_whatsapp": f"Hi {borrower['borrower_name']}, this is a WhatsApp reminder for your payment of ₹{borrower['loan_amount']:,.0f} due in 7 days. [PAYMENT_LINK]",
+            "d1_sms": f"URGENT: {borrower['borrower_name']}, your ₹{borrower['loan_amount']:,.0f} loan is due TOMORROW. Pay at [PAYMENT_LINK] to avoid late fees.",
+            "d0_final": f"FINAL NOTICE: {borrower['borrower_name']}, your payment of ₹{borrower['loan_amount']:,.0f} is due TODAY. Pay now: [PAYMENT_LINK].",
+            "grace_call_script": f"Hello {borrower['borrower_name']}, this is CredServ. We noticed your payment is 1 day overdue. How can we assist you today?",
+            "legal_notice": f"LEGAL DEMAND: {borrower['borrower_name']}, your account is now 3 days overdue. Formal notice before legal action."
+        }
+        return mocks.get(template_type, f"Professional reminder for your ₹{borrower['loan_amount']:,.0f} loan.")
+
     prompts = {
         "d7_whatsapp": f"""
 Write a friendly WhatsApp payment reminder for a microfinance borrower.
@@ -128,6 +140,8 @@ Goal: Understand reason for delay, not threaten.
         response = llm.generate_content(prompt)
         return response.text.strip()
     except Exception as e:
+        if "429" in str(e) or "ResourceExhausted" in str(e):
+             return f"[SYSTEM MOCK] Reminder for {borrower['borrower_name']} regarding ₹{borrower['loan_amount']:,.0f} loan."
         return f"[AI generation failed: {e}] Please contact us to discuss your payment of ₹{borrower['loan_amount']:,.0f}."
 
 
@@ -143,7 +157,9 @@ def node_d15_init(state: BorrowerState) -> BorrowerState:
 
 def node_d7_reminder(state: BorrowerState) -> BorrowerState:
     console.print(Panel("[bold blue]D-7:[/] Sending WhatsApp reminder", style="blue"))
-    msg = generate_message("d7_whatsapp", state)
+    # Check if 'mock' is in state, default to False
+    mock = state.get("mock", False)
+    msg = generate_message("d7_whatsapp", state, mock=mock)
     console.print(f"[dim]WhatsApp → {state['borrower_name']}:[/]\n{msg}\n")
     audit = append_audit(state, "whatsapp_sent", {"channel": "whatsapp", "message_preview": msg[:80]})
     messages = state["messages_sent"] + [f"D-7 WhatsApp: {msg}"]
@@ -152,7 +168,8 @@ def node_d7_reminder(state: BorrowerState) -> BorrowerState:
 
 def node_d1_reminder(state: BorrowerState) -> BorrowerState:
     console.print(Panel("[bold blue]D-1:[/] Sending urgent SMS + email", style="blue"))
-    msg = generate_message("d1_sms", state)
+    mock = state.get("mock", False)
+    msg = generate_message("d1_sms", state, mock=mock)
     console.print(f"[dim]SMS → {state['borrower_name']}:[/]\n{msg}\n")
     audit = append_audit(state, "sms_sent", {"channel": "sms", "message_preview": msg[:80]})
     messages = state["messages_sent"] + [f"D-1 SMS: {msg}"]
@@ -161,7 +178,8 @@ def node_d1_reminder(state: BorrowerState) -> BorrowerState:
 
 def node_due_today(state: BorrowerState) -> BorrowerState:
     console.print(Panel("[bold yellow]D-0:[/] Due date reached — final nudge", style="yellow"))
-    msg = generate_message("d0_final", state)
+    mock = state.get("mock", False)
+    msg = generate_message("d0_final", state, mock=mock)
     console.print(f"[dim]Final reminder → {state['borrower_name']}:[/]\n{msg}\n")
     audit = append_audit(state, "due_date_reminder_sent", {"channel": "whatsapp+email"})
     messages = state["messages_sent"] + [f"D-0 Final: {msg}"]
@@ -170,7 +188,8 @@ def node_due_today(state: BorrowerState) -> BorrowerState:
 
 def node_grace_call(state: BorrowerState) -> BorrowerState:
     console.print(Panel("[bold orange3]D+1:[/] Grace period — courtesy call attempt", style="orange3"))
-    script = generate_message("grace_call_script", state)
+    mock = state.get("mock", False)
+    script = generate_message("grace_call_script", state, mock=mock)
     console.print(f"[dim]Call script for {state['borrower_name']}:[/]\n{script}\n")
     attempts = state["contact_attempts"] + 1
     audit = append_audit(state, "call_attempted", {"attempt_number": attempts, "script_preview": script[:80]})
@@ -358,7 +377,7 @@ def make_initial_state(borrower_id: str = "BRW-001") -> BorrowerState:
     )
 
 
-def simulate_scenario(scenario: str):
+def simulate_scenario(scenario: str, mock: bool = False):
     """
     Simulate the full timeline for a given scenario by stepping through days.
     """
@@ -366,6 +385,7 @@ def simulate_scenario(scenario: str):
 
     graph = build_graph()
     state = make_initial_state()
+    state["mock"] = mock
 
     # Timeline: simulate day by day
     # We manually drive state through the graph by invoking nodes in sequence
@@ -469,10 +489,11 @@ def _print_audit_log(state: BorrowerState):
     console.print(f"[green]Audit log saved:[/] {log_path}")
 
 
-def interactive_mode():
+def interactive_mode(mock: bool = False):
     """Step through the state machine manually."""
     console.print(Panel("[bold]Interactive Mode — Step Through Collections Workflow[/]", style="bold cyan"))
     state = make_initial_state()
+    state["mock"] = mock
     state = node_d15_init(state)
 
     while state["current_stage"] not in ("CLOSED", "ESCALATED"):
@@ -514,11 +535,12 @@ if __name__ == "__main__":
     parser.add_argument("--scenario", choices=["pays_on_time", "pays_late", "delinquent", "disputes"],
                         help="Run a predefined scenario")
     parser.add_argument("--interactive", action="store_true", help="Step through manually")
+    parser.add_argument("--mock", action="store_true", help="Use mock AI messages (safe for recording)")
     args = parser.parse_args()
 
     if args.interactive:
-        interactive_mode()
+        interactive_mode(mock=args.mock)
     elif args.scenario:
-        simulate_scenario(args.scenario)
+        simulate_scenario(args.scenario, mock=args.mock)
     else:
         parser.print_help()

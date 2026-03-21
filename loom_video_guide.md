@@ -27,9 +27,9 @@ This script is designed for a **3-5 minute screen recording**. Follow the "What 
 **What to show:** 
 1. Open `phase2/state_machine.py`.
 2. Highlight the `BorrowerState` class (line 46) and the `route` function (line 209). 
-3. Run these terminal commands: 
-   - `python phase2/state_machine.py --scenario payment` (Successful)
-   - `python phase2/state_machine.py --scenario dispute` (Escalation)
+3. Run these terminal commands (Stable Mock Mode): 
+   - `python phase2/state_machine.py --scenario payment --mock`
+   - `python phase2/state_machine.py --scenario disputes --mock`
 
 **What to say:**
 > "Next is the heart of the system: the Collections Orchestrator in `state_machine.py`. I use LangGraph to manage the borrower journey. Unlike a simple chatbot, this is ‘bounded autonomy.’ As you see in the `route` function, it's strictly deterministic. 
