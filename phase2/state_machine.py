@@ -14,6 +14,14 @@ Usage:
 """
 
 import os
+import warnings
+import os
+
+# Suppress annoying Google API and Python version warnings for a clean professional demo
+warnings.filterwarnings("ignore", category=FutureWarning)
+os.environ["GRPC_VERBOSITY"] = "ERROR"
+os.environ["GLOG_minloglevel"] = "2"
+
 import sys
 import json
 import argparse

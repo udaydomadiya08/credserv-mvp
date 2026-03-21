@@ -46,7 +46,8 @@ This script is designed for a **3-5 minute screen recording**. Follow the "What 
 
 ---
 
-## 💡 Quick Demo Tips:
-- **Phase 1 Demo**: Run `python phase1/demo.py` (if you have one) or shown the contents of `demo_output.md`.
-- **Phase 2 Demo**: Trigger a "Dispute" scenario to show the state machine stopping.
+## 💡 Quick Demo Tips (Fail-Safe Guide):
+- **Use Mock Mode**: To ensure your video recording is smooth and doesn't hit Gemini API limits, run your demos with the `--mock` flag.
+  - `python phase1/extractor.py --demo --mock`
+- **Why Mock?**: This bypasses the real API and uses pre-verified data. It looks exactly the same in the terminal but is 100% session-stable.
 - **Resolution**: Record at 1080p for clarity.
