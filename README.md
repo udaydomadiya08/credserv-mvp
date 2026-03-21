@@ -34,7 +34,7 @@ credserv/
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/credserv-mvp.git
-cd credserv-mvp
+cd credserv
 python -m venv venv
 source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
