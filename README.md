@@ -33,7 +33,7 @@ credserv/
 ### 1. Clone & install dependencies
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/credserv-mvp.git
+git clone https://github.com/udaydomadiya08/credserv-mvp.git
 cd credserv
 python -m venv venv
 source venv/bin/activate        # Windows: venv\Scripts\activate
