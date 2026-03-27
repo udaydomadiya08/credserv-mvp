@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, ReactNode, useCallback 
 
 export type TransactionType = 'CREDIT' | 'DEBIT';
 export type CollectionsPhase = 'REMINDER_D15' | 'REMINDER_D7' | 'REMINDER_D1' | 'DUE_TODAY' | 'GRACE_D1' | 'DELINQUENT_D3' | 'CLOSED';
+export type AppPhase = 'overview' | 'phase1' | 'phase2' | 'phase3';
 
 export interface Transaction {
     id: string;
@@ -25,7 +26,17 @@ export interface LogEntry {
     message: string;
 }
 
+export interface MockDoc {
+    id: string;
+    name: string;
+    bank: string;
+    previewText: string;
+    extractedBalance: number;
+}
+
 interface CreditContextType {
+    activePhase: AppPhase;
+    setActivePhase: (phase: AppPhase) => void;
     user: User;
     balance: number;
     transactions: Transaction[];
@@ -35,11 +46,15 @@ interface CreditContextType {
     scanProgress: number;
     scanStep: string;
     collectionsPhase: CollectionsPhase;
+    selectedDoc: MockDoc | null;
+    setSelectedDoc: (doc: MockDoc | null) => void;
     addTransaction: (type: TransactionType, amount: number, description: string) => boolean;
     addLog: (message: string, type?: LogEntry['type']) => void;
-    startKYC: () => void;
+    startKYC: (doc: MockDoc) => void;
     advanceCollections: () => void;
     resetSystem: () => void;
+    isCalling: boolean;
+    setIsCalling: (val: boolean) => void;
 }
 
 const CreditContext = createContext<CreditContextType | undefined>(undefined);
@@ -51,7 +66,13 @@ const INITIAL_USER: User = {
     kycStatus: 'NOT_STARTED',
 };
 
+export const MOCK_DOCS: MockDoc[] = [
+    { id: '1', name: 'SBI_Statement_Jan.pdf', bank: 'SBI', previewText: 'Opening: 68,500.00\nTransaction 1: -5,000...', extractedBalance: 68500 },
+    { id: '2', name: 'HDFC_Salary_Stmt.pdf', bank: 'HDFC', previewText: 'Opening: 1,20,000.00\nSalary Credit: +95,000...', extractedBalance: 120000 },
+];
+
 export const CreditProvider = ({ children }: { children: ReactNode }) => {
+    const [activePhase, setActivePhase] = useState<AppPhase>('overview');
     const [user, setUser] = useState<User>(INITIAL_USER);
     const [balance, setBalance] = useState(0);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -61,6 +82,8 @@ export const CreditProvider = ({ children }: { children: ReactNode }) => {
     const [scanProgress, setScanProgress] = useState(0);
     const [scanStep, setScanStep] = useState('');
     const [collectionsPhase, setCollectionsPhase] = useState<CollectionsPhase>('REMINDER_D15');
+    const [selectedDoc, setSelectedDoc] = useState<MockDoc | null>(null);
+    const [isCalling, setIsCalling] = useState(false);
 
     const addLog = useCallback((message: string, type: LogEntry['type'] = 'INFO') => {
         setSystemLogs((prev) => [
@@ -70,7 +93,7 @@ export const CreditProvider = ({ children }: { children: ReactNode }) => {
                 type,
                 message,
             },
-            ...prev.slice(0, 49), // Keep last 50 logs
+            ...prev.slice(0, 49),
         ]);
     }, []);
 
@@ -79,7 +102,6 @@ export const CreditProvider = ({ children }: { children: ReactNode }) => {
             addLog(`Insufficient balance for withdrawal: ₹${amount.toLocaleString()}`, 'ERROR');
             return false;
         }
-
         const newTransaction: Transaction = {
             id: Math.random().toString(36).substr(2, 9),
             type,
@@ -87,53 +109,51 @@ export const CreditProvider = ({ children }: { children: ReactNode }) => {
             description,
             timestamp: new Date().toISOString(),
         };
-
         setTransactions((prev) => [newTransaction, ...prev]);
         setBalance((prev) => (type === 'CREDIT' ? prev + amount : prev - amount));
         addLog(`${type === 'CREDIT' ? 'Credit' : 'Debit'} processed: ₹${amount.toLocaleString()} - ${description}`, 'SUCCESS');
         return true;
     }, [balance, addLog]);
 
-    const startKYC = async () => {
+    const startKYC = async (doc: MockDoc) => {
+        setSelectedDoc(doc);
         setIsScanning(true);
         setScanProgress(0);
-        addLog('Starting AI-Native KYC Extraction Flow...', 'AI');
+        addLog(`VLM Agent starting extraction on ${doc.name}...`, 'AI');
 
         const steps = [
-            { msg: 'Detecting document layout...', progress: 10 },
-            { msg: 'VLM Agent: Analyzing bank statement segments...', progress: 30 },
-            { msg: 'Extracting account holder: Uday Domadiya', progress: 50 },
-            { msg: 'Verifying row-level math (157 transactions)...', progress: 70 },
-            { msg: 'Deterministic math check: PASSED', progress: 85 },
-            { msg: 'Finalizing JSON schema output...', progress: 95 },
+            { msg: 'Detecting document layout...', progress: 15 },
+            { msg: 'VLM Agent: Analyzing bank statement segments...', progress: 40 },
+            { msg: 'Extracting account holder: Uday Domadiya', progress: 65 },
+            { msg: `Deterministic math check: Balance ₹${doc.extractedBalance.toLocaleString()} VERIFIED`, progress: 85 },
+            { msg: 'Finalizing JSON output generated with 0.99 confidence.', progress: 100 },
         ];
 
         for (const step of steps) {
+            await new Promise(r => setTimeout(r, 600));
             setScanStep(step.msg);
             setScanProgress(step.progress);
             addLog(step.msg, 'AI');
-            await new Promise(r => setTimeout(r, 800));
         }
 
         setUser({
             name: 'Uday Domadiya',
             email: 'uday@example.com',
-            accountNumber: 'BRW-992-041',
+            accountNumber: `BRW-${Math.floor(Math.random() * 999).toString().padStart(3, '0')}`,
             kycStatus: 'VERIFIED',
         });
-        setBalance(68500);
-        setCreditScore(740);
+        setBalance(doc.extractedBalance);
         setTransactions([{
             id: 'init',
             type: 'CREDIT',
-            amount: 68500,
+            amount: doc.extractedBalance,
             description: 'Extracted Opening Balance',
             timestamp: new Date().toISOString(),
         }]);
 
         setIsScanning(false);
-        setScanProgress(100);
-        addLog('KYC Extraction Complete. Account Initialized.', 'SUCCESS');
+        addLog('Onboarding Complete. Welcome to CredServ.', 'SUCCESS');
+        setActivePhase('overview');
     };
 
     const advanceCollections = () => {
@@ -143,9 +163,9 @@ export const CreditProvider = ({ children }: { children: ReactNode }) => {
             const nextPhase = phases[nextIdx];
             setCollectionsPhase(nextPhase);
             addLog(`Collections State Machine advanced to: ${nextPhase}`, 'WARNING');
-
             if (nextPhase === 'DELINQUENT_D3') {
-                addLog('ESCALATION: Triggering D+3 Voice Agent system prompt generation.', 'ERROR');
+                setIsCalling(true);
+                addLog('CRITICAL: Initiating D+3 AI Voice Agent recovery protocol.', 'ERROR');
             }
         }
     };
@@ -157,7 +177,10 @@ export const CreditProvider = ({ children }: { children: ReactNode }) => {
         setCreditScore(0);
         setSystemLogs([]);
         setCollectionsPhase('REMINDER_D15');
-        addLog('System reset to initial state.', 'INFO');
+        setActivePhase('overview');
+        setSelectedDoc(null);
+        setIsCalling(false);
+        addLog('System reset.', 'INFO');
     };
 
     useEffect(() => {
@@ -165,13 +188,13 @@ export const CreditProvider = ({ children }: { children: ReactNode }) => {
             const scoreModifier = transactions.length * 2 + (balance > 10000 ? 50 : -20);
             setCreditScore(Math.min(900, Math.max(300, 700 + scoreModifier)));
         }
-    }, [balance, transactions.length, user.kycStatus]);
+    }, [balance, transactions, user.kycStatus]);
 
     return (
         <CreditContext.Provider value={{
-            user, balance, transactions, creditScore, systemLogs,
-            isScanning, scanProgress, scanStep, collectionsPhase,
-            addTransaction, addLog, startKYC, advanceCollections, resetSystem
+            activePhase, setActivePhase, user, balance, transactions, creditScore, systemLogs,
+            isScanning, scanProgress, scanStep, collectionsPhase, selectedDoc, setSelectedDoc,
+            addTransaction, addLog, startKYC, advanceCollections, resetSystem, isCalling, setIsCalling
         }}>
             {children}
         </CreditContext.Provider>
