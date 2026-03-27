@@ -209,7 +209,7 @@ Errors: [{'row': 1, 'date': '2024-01-01', ..., 'expected_balance': 8000.0, 'stat
 
 ## video Walkthrough
 
- — 5-minute demo covering:
+https://drive.google.com/file/d/11R7opaHo55y1WasDahrNy672ZNF6AHtp/view?usp=sharing — 5-minute demo covering:
 1. Phase 1: Demo run showing all 3 document variants + math error catch
 2. Phase 2: `delinquent` scenario showing full D-15→D+3 flow
 3. Phase 2: `disputes` scenario showing bounded autonomy handoff
