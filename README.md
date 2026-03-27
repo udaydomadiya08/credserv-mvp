@@ -1,50 +1,53 @@
 # CredServ | Autonomous Financial Orchestration
 
-> **Elevating Credit Management into a High-Fidelity Autonomous Ecosystem.**
+> **The "Top 1%" Standard for Automated Credit Management.**
 
-CredServ is a "Top 1%" interactive system emulator designed to showcase the future of credit management. It transforms complex backend logic (VLM Extraction, State Machine Enforcement) into a world-class, immersive product tour.
-
-## 🏛 The 3-Phase Interactive Journey
-
-The demo is divided into three functional "Hubs," each representing a core pillar of the CredServ platform.
-
-### 🕵️‍♂️ Phase 1: VLM Data Factory
-Demonstrates how our VLM Agent (Gemini 1.5 Flash) processes unstructured documents.
-- **Simulation**: Choose between different bank statements and watch the laser scan extraction.
-- **Depth**: Experience real-time layout analysis and deterministic balance verification.
-- **The Result**: Automatic onboarding based on verified AI extraction.
-
-### ⚖️ Phase 2: Collections Orchestrator
-Showcases the deterministic state machine that manages the borrower lifecycle.
-- **Simulation**: Advance a borrower through the Enforcement Timeline (from 15 days before due to 3 days past due).
-- **Agents**: Experience automated SMS/Email reminders and a **Live AI Voice Call** simulation when the system detects delinquency at D+3.
-
-### 🏗 Phase 3: Infrastructure Visualizer
-An interactive map for stakeholders to understand how the system scales.
-- **Visuals**: Animated nodes representing our Gemini 1.5 Nodes, LangGraph Orchestrators, and Vector DBs.
-- **Live State**: Pulse animations on active nodes to show parallel agent activity.
+### 🏛 [ENTER THE INTERACTIVE DEMO](https://udaydomadiya08.github.io/credserv-mvp/)
+*(Click the link above to view the live System Emulator)*
 
 ---
 
-## 🎨 Professional Aesthetics
-- **Refraction Glassmorphism**: A premium design system using deep obsidian tones and indigo neon glows.
-- **Agent Command Center**: A live "Chain of Thought" terminal at the bottom that reveals every background task in real-time.
-- **Cinematic Motion**: Every transition is orchestrated using complex Framer Motion sequences.
+## 🌟 The Complete 3-Phase Ecosystem
+
+CredServ is not just a dashboard; it is a **Functional System Emulator** that demonstrates the entire lifecycle of a loan—from zero-touch extraction to automated recovery.
+
+### 🕵️‍♂️ Phase 1: VLM Data Factory (The Onboarding)
+**Concept**: Replacing traditional OCR with Visual Language Model (VLM) reasoning.
+- **Demo Mode**: Pick any bank statement (e.g., SBI or HDFC). 
+- **The Magic**: Watch the "Laser Scan" as the Gemini 1.5 agent analyzes the unstructured document layout.
+- **Math Audit**: The system performs a **deterministic math verification** on every transaction row to ensure the extracted balance matches the statement reality.
+- **Outcome**: A "Verified" user profile is created instantly with 99.9% confidence.
+
+### ⚖️ Phase 2: Autonomous Collections (The Enforcement)
+**Concept**: A deterministic State Machine built on LangGraph for borrower management.
+- **Demo Mode**: Advance the "Enforcement Clock" to see how the system responds to late payments.
+- **AI Engagement**: 
+  - **D-15 to D-1**: Automated nudges via SMS and Email.
+  - **D+3 (Delinquency)**: Triggers an **Inbound AI Voice Agent** call (simulated transcript) to negotiate repayment.
+- **Outcome**: Dynamic recovery protocols that scale to millions of borrowers without increasing headcount.
+
+### 🏗 Phase 3: Infrastructure Map (The Architecture)
+**Concept**: A transparent look at the CredServ "Cloud Brain."
+- **Demo Mode**: An interactive diagram showing the flow of data between distributed nodes.
+- **Map Nodes**:
+  - **Gemini Core**: The heart of VLM and Voice reasoning.
+  - **LangGraph Orchestrator**: Manages state transitions and agent handoffs.
+  - **Vector Audit Log**: Ensures every agent decision is immutable and auditable.
+- **Outcome**: A battle-tested architecture designed for massive scale and privacy.
 
 ---
 
-## 🛠 Technical Implementation
-- **Core**: React 18 & Vite (TypeScript)
-- **Animation**: Framer Motion 11
-- **Styling**: Tailwind CSS 3.4
-- **State**: React Context API (Engineered for complex system simulations)
-- **Icons**: Lucide React
+## 🎨 Premium Tech Stack
+- **Engine**: React 18 & Vite (TypeScript)
+- **Visuals**: Framer Motion 11 (Cinematic staggered animations)
+- **Styling**: Tailwind CSS (Custom "Refraction" Design System)
+- **Intelligence**: Simulated Gemini 1.5 Flash & LangGraph logic
 
-## 🚀 Navigation
-1.  **Run Locally**: `npm run dev`
-2.  **Access Hubs**: Use the **Sidebar Menu** to switch between Ecosystem Overview, KYC Hub, Collections, and Infrastructure rooms.
-3.  **Simulation**: Interact with the "VLM Scanner" in Phase 1 to begin your journey.
+## 🚀 How to Run Locally
+1. `npm install`
+2. `npm run dev`
+3. Access the **Sidebar Menu** in the app to switch between Phase 1, 2, and 3.
 
 ---
 
-Built for a world-class stakeholder experience. 🚀💎
+**Built by CredServ Engineering for World-Class Stakeholder Presentations.** 🚀💎
