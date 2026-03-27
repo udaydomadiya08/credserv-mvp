@@ -1,5 +1,7 @@
 # CredServ | Autonomous Financial Orchestration 🚀
 
+**Live Demo: [https://udaydomadiya08.github.io/credserv-mvp/](https://udaydomadiya08.github.io/credserv-mvp/)**
+
 A high-fidelity, interactive demo of the CredServ ecosystem. This application transforms a technical MVP into a premium user experience, showcasing autonomous credit management, AI-native KYCเข้าใจ Understanding, and state-machine driven collections.
 
 ## ✨ Features
